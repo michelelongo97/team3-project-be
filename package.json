@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "app.jsx",
   "scripts": {
-    "start": "node app.js",
-    "watch": "node --watch app.js"
+    "start": "node --env-file=.env app.js",
+    "watch": "node --env-file=.env --watch app.js"
   },
   "repository": {
     "type": "git",
