@@ -3,6 +3,7 @@ const cors = require('cors')
 const port = 3000;
 //Routes
 const bookRouter = require("./routers/bookRouter")
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express()
 
@@ -17,6 +18,8 @@ app.use(express.json())
 
 // Rotte
 app.use("/books" , bookRouter);
+
+app.use(errorHandler);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
