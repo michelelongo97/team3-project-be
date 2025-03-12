@@ -3,6 +3,7 @@ const cors = require("cors");
 //Routes
 const bookRouter = require("./routers/bookRouter");
 const wishlistRouter = require("./routers/wishlistRouter");
+const cartRouter = require("./routers/cartRouter");
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(express.static("public"));
 // Rotte
 app.use("/books", bookRouter);
 app.use("/wishlist", wishlistRouter);
+app.use('/books', cartRouter);
 
 app.use(errorHandler);
 
