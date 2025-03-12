@@ -100,6 +100,7 @@ const show = (req, res) => {
 
     book.image = `${process.env.BE_URL}/book_cover/${book.image}`;
 
+
     res.json(book);
   });
 };
