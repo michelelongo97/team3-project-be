@@ -21,7 +21,7 @@ const index = (req, res) => {
       });
     }
     const books = results.map((book) => {
-      book.image = `${process.env.BE_URL}/books/${book.image}`;
+      book.image = `${process.env.BE_URL}/book_cover/${book.image}`;
       return book;
     });
 
@@ -34,8 +34,10 @@ const showSearch = (req, res) => {
   const searchInput = req.query.q;
 
   const sql = `
-    SELECT books.*, genres.category
+    SELECT books.*, genres.category, discounts.id AS discountId, discounts.description AS discountDescription,
+           discounts.value, discounts.start_date, discounts.end_date
     FROM books
+    LEFT JOIN discounts ON books.id = discounts.book_id
     JOIN genres ON books.genre_id = genres.id
     WHERE books.title LIKE ?
     OR books.author LIKE ?
@@ -52,7 +54,12 @@ const showSearch = (req, res) => {
         message: `Database query failed: ${sql}`,
       });
     }
-    res.json(results);
+
+    const books = results.map((book) => {
+      book.image = `${process.env.BE_URL}/book_cover/${book.image}`;
+      return book;
+    });
+    res.json(books);
   });
 };
 
@@ -60,7 +67,7 @@ const showSearch = (req, res) => {
 const show = (req, res) => {
   const { id } = req.params;
   const bookSql = `
-    SELECT books.*,genres.*,discounts.value AS discount_percentage,
+    SELECT books.*,genres.category,discounts.value AS discount_percentage,
     CASE 
         WHEN discounts.value IS NOT NULL 
         THEN ROUND(books.price - (books.price * discounts.value / 100), 2)
@@ -87,11 +94,12 @@ const show = (req, res) => {
     if (!book) {
       return res.status(404).json({
         error: "not found",
-        message: "movie not found",
+        message: "book not found",
       });
     }
 
-    book.image = `${process.env.BE_URL}/books/${book.image}`;
+    book.image = `${process.env.BE_URL}/book_cover/${book.image}`;
+
 
     res.json(book);
   });
