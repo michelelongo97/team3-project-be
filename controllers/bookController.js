@@ -91,7 +91,7 @@ const show = (req, res) => {
       });
     }
 
-    book.image = `${process.env.BE_URL}/movies/${book.image}`;
+    book.image = `${process.env.BE_URL}/books/${book.image}`;
 
     res.json(book);
   });
