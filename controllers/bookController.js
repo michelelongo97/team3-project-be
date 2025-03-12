@@ -5,7 +5,7 @@ const connection = require("../data/db");
 
 const index = (req, res) => {
   const sql = `
-        SELECT books.*, discounts.id AS discountId, discounts.description,
+        SELECT books.*, discounts.id AS discountId, discounts.description AS discountDescription,
                discounts.value, discounts.start_date, discounts.end_date
         FROM books
         LEFT JOIN discounts ON books.id = discounts.book_id
@@ -57,9 +57,9 @@ const showSearch = (req, res) => {
 };
 
 //SHOW SINGLE BOOK
-const show = (req, res) =>{
-    const {id} = req.params
-    const bookSql = `
+const show = (req, res) => {
+  const { id } = req.params;
+  const bookSql = `
     SELECT books.*,genres.*,discounts.value AS discount_percentage,
     CASE 
         WHEN discounts.value IS NOT NULL 
@@ -71,35 +71,31 @@ const show = (req, res) =>{
     JOIN 
     genres ON genres.id = books.genre_id
     WHERE 
-    books.id = ? `; 
+    books.id = ? `;
 
-    //lanciare la query
-    connection.execute(bookSql, [id], (err, result) => {
-        if(err){
-            return res.status(500).json({
-                error:"Query Error",
-                message:"Database query failed"
-            })
-        }
+  //lanciare la query
+  connection.execute(bookSql, [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        error: "Query Error",
+        message: "Database query failed",
+      });
+    }
 
-        
-        const book = result[0]
+    const book = result[0];
 
-        if(!book){
-            return res.status(404).json({
-                error: "not found",
-                message:"movie not found"
-            })
-        }
+    if (!book) {
+      return res.status(404).json({
+        error: "not found",
+        message: "movie not found",
+      });
+    }
 
-       book.image =`${process.env.BE_URL}/movies/${book.image}`
+    book.image = `${process.env.BE_URL}/movies/${book.image}`;
 
-       res.json(book)           
-})
-   
-}
-
-
+    res.json(book);
+  });
+};
 
 //DESTROY
 const destroy = (req, res) => {};
