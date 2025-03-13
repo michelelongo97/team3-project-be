@@ -74,5 +74,8 @@ const postLogin = (req, res) => {
 };
 
 //autentificazione del profilo
-const getProfile = (req, res) => {};
+const getProfile = (req, res) => {
+  res.json({ message: "Profilo utente" });
+};
+
 module.exports = { postRegister, postLogin, getProfile };
