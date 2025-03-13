@@ -4,6 +4,8 @@ const cors = require("cors");
 const bookRouter = require("./routers/bookRouter");
 const wishlistRouter = require("./routers/wishlistRouter");
 const cartRouter = require("./routers/cartRouter");
+const userRouter = require("./routers/userRouter");
+//Middleware
 const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
@@ -23,7 +25,8 @@ app.use(express.static("public"));
 // Rotte
 app.use("/books", bookRouter);
 app.use("/wishlist", wishlistRouter);
-app.use('/books', cartRouter);
+app.use("/books", cartRouter);
+app.use("/users", userRouter);
 
 app.use(errorHandler);
 
