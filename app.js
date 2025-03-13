@@ -4,6 +4,7 @@ const cors = require("cors");
 const bookRouter = require("./routers/bookRouter");
 const wishlistRouter = require("./routers/wishlistRouter");
 const cartRouter = require("./routers/cartRouter");
+const salesRouter = require("./routers/salesRouter");
 const userRouter = require("./routers/userRouter");
 //Middleware
 const errorHandler = require("./middleware/errorHandler");
@@ -26,7 +27,9 @@ app.use(express.static("public"));
 app.use("/books", bookRouter);
 app.use("/wishlist", wishlistRouter);
 app.use("/books", cartRouter);
+app.use("/sales", salesRouter);
 app.use("/users", userRouter);
+
 
 app.use(errorHandler);
 

@@ -1,7 +1,7 @@
 const db = require("../data/db");
 
 // POST - Aggiunge un libro alla wishlist
-exports.addToWishlist = (req, res) => {
+function addToWishlist(req, res) {
   const { user_id, book_id } = req.body;
 
   if (!user_id || !book_id) {
@@ -21,10 +21,10 @@ exports.addToWishlist = (req, res) => {
         .json({ message: "Il libro è stato aggiunto alla wishlist" });
     }
   });
-};
+}
 
 // DELETE - Rimuove un libro dalla wishlist
-exports.removeFromWishlist = (req, res) => {
+function removeFromWishlist(req, res) {
   const { user_id, book_id } = req.body;
 
   if (!user_id || !book_id) {
@@ -47,4 +47,6 @@ exports.removeFromWishlist = (req, res) => {
         .json({ message: "Il libro è stato rimosso dalla wishlist" });
     }
   });
-};
+}
+
+module.exports = { addToWishlist, removeFromWishlist };
