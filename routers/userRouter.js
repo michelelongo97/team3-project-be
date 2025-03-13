@@ -20,7 +20,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 //Post registrazione
-router.post("/register", userController.postRegistrer);
+router.post("/register", userController.postRegister);
 
 //Post registrazione
 router.post("/login", userController.postLogin);

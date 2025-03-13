@@ -1,6 +1,6 @@
 const connection = require("../data/db");
 //registrazione utente
-const postRegistrer = (req, res) => {
+const postRegister = (req, res) => {
   const {
     first_name,
     last_name,
@@ -75,4 +75,4 @@ const postLogin = (req, res) => {
 
 //autentificazione del profilo
 const getProfile = (req, res) => {};
-module.exports = { postRegistrer, postLogin, getProfile };
+module.exports = { postRegister, postLogin, getProfile };
