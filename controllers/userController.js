@@ -69,7 +69,11 @@ const postLogin = (req, res) => {
     if (user.password !== password)
       return res.status(401).json({ message: "Credenziali non valide" });
 
-    res.json({ message: "Login riuscito" });
+    res.json({
+      message: "Login riuscito",
+      userId: user.id,
+      token: "valid_token",
+    });
   });
 };
 
