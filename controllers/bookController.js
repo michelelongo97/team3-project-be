@@ -66,17 +66,25 @@ const showSearch = (req, res) => {
 //SHOW SINGLE BOOK
 const show = (req, res) => {
   const { id } = req.params;
+  // const bookSql = `
+  //   SELECT books.*,genres.category,discounts.value AS discount_percentage,
+  //   CASE
+  //       WHEN discounts.value IS NOT NULL
+  //       THEN ROUND(books.price - (books.price * discounts.value / 100), 2)
+  //   END AS discounted_price
+  //   FROM books
+  //   LEFT JOIN
+  //   discounts ON books.id = discounts.book_id
+  //   JOIN
+  //   genres ON genres.id = books.genre_id
+  //   WHERE
+  //   books.id = ? `;
   const bookSql = `
-    SELECT books.*,genres.category,discounts.value AS discount_percentage,
-    CASE 
-        WHEN discounts.value IS NOT NULL 
-        THEN ROUND(books.price - (books.price * discounts.value / 100), 2)
-    END AS discounted_price
+  SELECT books.*, genres.category, discounts.id AS discountId, discounts.description AS discountDescription,
+           discounts.value, discounts.start_date, discounts.end_date, discount_type
     FROM books
-    LEFT JOIN 
-    discounts ON books.id = discounts.book_id
-    JOIN 
-    genres ON genres.id = books.genre_id
+    LEFT JOIN discounts ON books.id = discounts.book_id
+    JOIN genres ON books.genre_id = genres.id
     WHERE 
     books.id = ? `;
 
@@ -99,7 +107,6 @@ const show = (req, res) => {
     }
 
     book.image = `${process.env.BE_URL}/book_cover/${book.image}`;
-
 
     res.json(book);
   });
