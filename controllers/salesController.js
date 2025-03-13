@@ -69,4 +69,4 @@ function createSale(req, res) {
   );
 }
 
-module.exports = { createSale };
+module.exports =  createSale ;
