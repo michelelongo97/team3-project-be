@@ -6,11 +6,11 @@ const connection = require("../data/db");
 const index = (req, res) => {
   const sql = `
         SELECT books.*, discounts.id AS discountId, discounts.description AS discountDescription,
-               discounts.value, discounts.start_date, discounts.end_date
+               discounts.value, discounts.start_date, discounts.end_date, discount_type
         FROM books
         LEFT JOIN discounts ON books.id = discounts.book_id
         ORDER BY year_edition DESC
-        LIMIT 5`;
+        LIMIT 10`;
 
   //lanciare la query
   connection.execute(sql, (err, results) => {
@@ -35,7 +35,7 @@ const showSearch = (req, res) => {
 
   const sql = `
     SELECT books.*, genres.category, discounts.id AS discountId, discounts.description AS discountDescription,
-           discounts.value, discounts.start_date, discounts.end_date
+           discounts.value, discounts.start_date, discounts.end_date, discount_type
     FROM books
     LEFT JOIN discounts ON books.id = discounts.book_id
     JOIN genres ON books.genre_id = genres.id
@@ -66,19 +66,7 @@ const showSearch = (req, res) => {
 //SHOW SINGLE BOOK
 const show = (req, res) => {
   const { id } = req.params;
-  // const bookSql = `
-  //   SELECT books.*,genres.category,discounts.value AS discount_percentage,
-  //   CASE
-  //       WHEN discounts.value IS NOT NULL
-  //       THEN ROUND(books.price - (books.price * discounts.value / 100), 2)
-  //   END AS discounted_price
-  //   FROM books
-  //   LEFT JOIN
-  //   discounts ON books.id = discounts.book_id
-  //   JOIN
-  //   genres ON genres.id = books.genre_id
-  //   WHERE
-  //   books.id = ? `;
+
   const bookSql = `
   SELECT books.*, genres.category, discounts.id AS discountId, discounts.description AS discountDescription,
            discounts.value, discounts.start_date, discounts.end_date, discount_type
