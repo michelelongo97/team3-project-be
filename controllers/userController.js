@@ -1,7 +1,15 @@
 const connection = require("../data/db");
 //registrazione utente
 const postRegistrer = (req, res) => {
-  const { first_name, last_name, email, password } = req.body;
+  const {
+    first_name,
+    last_name,
+    email,
+    password,
+    phone,
+    billing_address,
+    shipment_address,
+  } = req.body;
   // Controllo della lunghezza della password
   if (password.length < 10) {
     return res
@@ -19,11 +27,19 @@ const postRegistrer = (req, res) => {
 
     // Salva l'utente nel database, aggiungendo solo la data di registrazione
     const sql =
-      "INSERT INTO users (first_name, last_name, email, password, registration_date) VALUES (?, ?, ?, ?, CURRENT_DATE())";
+      "INSERT INTO users (first_name, last_name, email, password, phone, billing_address, shipment_address, registration_date) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_DATE())";
 
     connection.execute(
       sql,
-      [first_name, last_name, email, password],
+      [
+        first_name,
+        last_name,
+        email,
+        password,
+        phone,
+        billing_address,
+        shipment_address,
+      ],
       (err, result) => {
         if (err) {
           return res
