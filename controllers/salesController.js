@@ -14,6 +14,8 @@ function createSale(req, res) {
     total_price += book.price * book.quantity;
   });
 
+  const final_shipment_cost = total_price > 50 ? 0 : shipment_cost || 4.99;
+
   const order_number = `ORD-${Date.now()}`;
 
   const sql =
@@ -26,7 +28,7 @@ function createSale(req, res) {
       discount_id || null,
       seller_email,
       total_price,
-      shipment_cost || 4.99,
+      final_shipment_cost,
       order_number,
     ],
     (error, result) => {
@@ -42,6 +44,7 @@ function createSale(req, res) {
           res.json({
             message: "Vendita registrata con successo!",
             order_number,
+            shipment_cost: final_shipment_cost,
           });
         }
       }
@@ -69,4 +72,4 @@ function createSale(req, res) {
   );
 }
 
-module.exports =  createSale ;
+module.exports = createSale;
