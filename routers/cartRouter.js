@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {addToCart , removeFromCart, getCart}= require("../controllers/cartController");
+const {addToCart , removeFromCart, getCart , updateCartQuantity}= require("../controllers/cartController");
 
 
 router.post('/', addToCart);
@@ -13,5 +13,9 @@ router.delete('/remove/:book_id/:quantity', (req, res) => {
 });
 
 router.get('/', getCart);
+
+router.put('/update-quantity', (req, res) => {
+    updateCartQuantity(req, res); 
+});
 
 module.exports = router;
