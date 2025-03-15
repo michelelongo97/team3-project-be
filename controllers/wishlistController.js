@@ -37,13 +37,13 @@ function getUserWishlist(req, res) {
     }
 
     if (results.length === 0) {
-      return res
-        .status(404)
-        .json({
-          message: "La wishlist è vuota o l'utente non ha libri nella wishlist",
-        });
+      return res.status(404).json({
+        message: "La wishlist è vuota o l'utente non ha libri nella wishlist",
+      });
     }
-
+    results.forEach((book) => {
+      book.image = `${process.env.BE_URL}/book_cover/${book.image}`;
+    });
     // Restituisci i libri trovati nella wishlist
     res.status(200).json(results); // I risultati sono i libri associati alla wishlist dell'utente
   });
