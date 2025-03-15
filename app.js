@@ -26,7 +26,7 @@ app.use(express.static("public"));
 // Rotte
 app.use("/books", bookRouter);
 app.use("/wishlist", wishlistRouter);
-app.use("/books", cartRouter);
+app.use("/cart", cartRouter);
 app.use("/sales", salesRouter);
 app.use("/users", userRouter);
 
