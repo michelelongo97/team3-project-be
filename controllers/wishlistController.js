@@ -1,5 +1,24 @@
 const db = require("../data/db");
 
+// Funzione per ottenere un user_id esistente
+function getUserId(req, res) {
+  const sql = "SELECT id FROM users LIMIT 1"; // Puoi anche fare un'altra query che restituisce un ID specifico
+  db.execute(sql, [], (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Nessun utente trovato nel database" });
+    }
+
+    // Restituisci il primo user_id trovato
+    res.status(200).json({ user_id: results[0].id });
+  });
+}
+
 // POST - Aggiunge un libro alla wishlist
 function addToWishlist(req, res) {
   const { user_id, book_id } = req.body;
@@ -49,4 +68,4 @@ function removeFromWishlist(req, res) {
   });
 }
 
-module.exports = { addToWishlist, removeFromWishlist };
+module.exports = { getUserId, addToWishlist, removeFromWishlist };
