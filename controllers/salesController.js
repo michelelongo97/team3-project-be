@@ -1,75 +1,126 @@
-const db = require("../data/db");
+const connection = require('../data/db');
+const createSale = (req, res) => {
+  const {
+      first_name,
+      last_name,
+      email,
+      phone,
+      shipment_address,
+      billing_address,
+      total_price,
+  } = req.body;
 
-function createSale(req, res) {
-  const { user_id, books, discount_id, seller_email, shipment_cost } = req.body;
-
-  if (!user_id || !books || books.length === 0) {
-    return res
-      .status(400)
-      .json({ message: "Almeno un User ID ed un libro sono richiesti." });
+  // Verifica che tutti i dati richiesti siano presenti
+  if (!first_name || !last_name || !email || !phone || !shipment_address || !billing_address || !total_price) {
+      return res.status(400).json({
+          error: "Dati mancanti",
+          message: "Tutti i campi (nome, cognome, email, telefono, indirizzi, prezzo totale) sono obbligatori per completare il checkout.",
+      });
   }
 
-  let total_price = 0;
-  books.forEach((book) => {
-    total_price += book.price * book.quantity;
-  });
-
-  const final_shipment_cost = total_price > 50 ? 0 : shipment_cost || 4.99;
-
-  const order_number = `ORD-${Date.now()}`;
-
-  const sql =
-    "INSERT INTO sales (user_id, discount_id, seller_email, total_price, shipment_cost, order_number, sale_date) VALUES (?, ?, ?, ?, ?, ?, NOW())";
-
-  db.execute(
-    sql,
-    [
-      user_id,
-      discount_id || null,
-      seller_email,
-      total_price,
-      final_shipment_cost,
-      order_number,
-    ],
-    (error, result) => {
-      if (error) return res.status(500).json({ error: error.message });
-
-      const sale_id = result.insertId;
-      let completedQueries = 0;
-      let totalQueries = books.length * 2;
-
-      function isDone() {
-        completedQueries++;
-        if (completedQueries === totalQueries) {
-          res.json({
-            message: "Vendita registrata con successo!",
-            order_number,
-            shipment_cost: final_shipment_cost,
-          });
-        }
-      }
-
-      books.forEach((book) => {
-        const saleDetailQuery =
-          "INSERT INTO sale_details (sale_id, book_id, quantity, price, book_title) VALUES (?, ?, ?, ?, ?)";
-        db.execute(
-          saleDetailQuery,
-          [sale_id, book.id, book.quantity, book.price, book.title],
-          (error) => {
-            if (error) return res.status(500).json({ error: error.message });
-            isDone(); // Incremento il conteggio
+  // Inserisci l'utente nella tabella `users`
+  const insertUserSql = `
+      INSERT INTO users 
+      (first_name, last_name, email, phone, shipment_address, billing_address, registration_date) 
+      VALUES (?, ?, ?, ?, ?, ?, NOW())
+  `;
+  connection.execute(
+      insertUserSql,
+      [first_name, last_name, email, phone, shipment_address, billing_address],
+      (err, userResult) => {
+          if (err) {
+              console.error("Errore durante l'inserimento dell'utente:", err.message);
+              return res.status(500).json({ error: "Database Error" });
           }
-        );
 
-        const updateBookQuery =
-          "UPDATE books SET available_quantity = available_quantity - ? WHERE id = ?";
-        db.execute(updateBookQuery, [book.quantity, book.id], (error) => {
-          if (error) return res.status(500).json({ error: error.message });
-          isDone(); // Incremento il conteggio
-        });
-      });
-    }
+          const user_id = userResult.insertId; // Ottieni l'ID generato per l'utente
+          processSale(user_id);
+      }
   );
-}
 
-module.exports = createSale;
+  function processSale(user_id) {
+      const getPendingItemsSql = `
+          SELECT 
+              sale_details.book_id, 
+              sale_details.quantity, 
+              sale_details.price, 
+              sale_details.book_title 
+          FROM sale_details 
+          WHERE sale_details.status = 'pending'
+      `;
+
+      connection.beginTransaction((err) => {
+          if (err) {
+              return res.status(500).json({ error: "Errore nella transazione." });
+          }
+
+          connection.execute(getPendingItemsSql, [], (err, itemsResult) => {
+              if (err) {
+                  return connection.rollback(() =>
+                      res.status(500).json({ error: err.message })
+                  );
+              }
+
+              if (itemsResult.length === 0) {
+                  return connection.rollback(() =>
+                      res.status(400).json({ message: "Il carrello è vuoto." })
+                  );
+              }
+
+              // Calcolo del costo di spedizione
+              const shipment_cost = total_price > 50 ? 0 : 4.99;
+              const order_number = `ORD-${Date.now()}`;
+
+              // Inserisci la vendita nella tabella `sales`
+              const insertSaleSql = `
+                  INSERT INTO sales (user_id, discount_id, total_price, shipment_cost, order_number, sale_date) 
+                  VALUES (?, NULL, ?, ?, ?, NOW())
+              `;
+              connection.execute(
+                  insertSaleSql,
+                  [user_id, total_price, shipment_cost, order_number],
+                  (err, result) => {
+                      if (err) {
+                          return connection.rollback(() =>
+                              res.status(500).json({ error: err.message })
+                          );
+                      }
+
+                      const sale_id = result.insertId;
+
+                      // Aggiorna lo stato degli articoli nel carrello
+                      const updateItemStatusSql = `
+                          UPDATE sale_details 
+                          SET sale_id = ?, status = 'confirmed' 
+                          WHERE status = 'pending'
+                      `;
+                      connection.execute(updateItemStatusSql, [sale_id], (err) => {
+                          if (err) {
+                              return connection.rollback(() =>
+                                  res.status(500).json({ error: err.message })
+                              );
+                          }
+
+                          connection.commit((err) => {
+                              if (err) {
+                                  return connection.rollback(() =>
+                                      res.status(500).json({ error: err.message })
+                                  );
+                              }
+
+                              res.status(200).json({
+                                  message: "Checkout completato con successo.",
+                                  order_number,
+                                  shipment_cost,
+                                  total_price,
+                              });
+                          });
+                      });
+                  }
+              );
+          });
+      });
+  }
+};
+
+  module.exports = createSale;
