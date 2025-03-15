@@ -161,10 +161,45 @@ function removeFromCart(book_id, quantity, res) {
   });
 }
 
+// Funzione che consente di recuperare il contenuto del carrello
+const getCart = (req, res) => {
+  const getCartItemsSql = `
+      SELECT 
+          sale_details.book_id, 
+          sale_details.quantity, 
+          sale_details.price, 
+          books.title AS book_title, 
+          books.image , 
+          discounts.description,
+          discounts.discount_type,
+          discounts.value
+      FROM sale_details
+      LEFT JOIN books ON sale_details.book_id = books.id
+      LEFT JOIN discounts ON books.id = discounts.book_id
+      WHERE sale_details.status = 'pending'
+  `;
+  connection.execute(getCartItemsSql, [], (err, result) => {
+      if (err) {
+          console.error("Errore durante il recupero del carrello:", err.message);
+          return res.status(500).json({
+              error: "Database Error",
+              message: "Errore durante il recupero del carrello.",
+          });
+      }
+
+      res.status(200).json({
+          message: "Carrello recuperato con successo.",
+          cart: result,
+      });
+  });
+};
 
 
 
-module.exports = {addToCart, removeFromCart}
+
+
+
+module.exports = {addToCart, removeFromCart, getCart}
 
 
 
