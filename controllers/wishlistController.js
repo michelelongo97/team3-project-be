@@ -19,6 +19,36 @@ function getUserId(req, res) {
   });
 }
 
+// Funzione per ottenere la wishlist di un utente
+function getUserWishlist(req, res) {
+  const userId = req.params.userId;
+
+  // Query per ottenere i libri nella wishlist di un utente
+  const sql = `
+    SELECT books.id, books.title, books.price, books.image
+    FROM books
+    INNER JOIN book_user ON books.id = book_user.book_id
+    WHERE book_user.user_id = ?
+  `;
+
+  db.execute(sql, [userId], (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({
+          message: "La wishlist è vuota o l'utente non ha libri nella wishlist",
+        });
+    }
+
+    // Restituisci i libri trovati nella wishlist
+    res.status(200).json(results); // I risultati sono i libri associati alla wishlist dell'utente
+  });
+}
+
 // POST - Aggiunge un libro alla wishlist
 function addToWishlist(req, res) {
   const { user_id, book_id } = req.body;
@@ -68,4 +98,9 @@ function removeFromWishlist(req, res) {
   });
 }
 
-module.exports = { getUserId, addToWishlist, removeFromWishlist };
+module.exports = {
+  getUserId,
+  addToWishlist,
+  removeFromWishlist,
+  getUserWishlist,
+};

@@ -4,6 +4,7 @@ const wishlistController = require("../controllers/wishlistController");
 
 // Rotte per la wishlist
 router.get("/get-user-id", wishlistController.getUserId);
+router.get("/:userId", wishlistController.getUserWishlist);
 router.post("/", wishlistController.addToWishlist);
 router.delete("/", wishlistController.removeFromWishlist);
 
