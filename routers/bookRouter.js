@@ -12,10 +12,10 @@ router.get("/", bookController.index);
 router.get("/search", bookController.showSearch);
 
 //Show
-router.get("/:id", bookController.show);
+router.get("/slug/:slug", bookController.show);
 
 //Related books
-router.get("/related-books/:id", relatedBooksController.getRelatedBooks); 
+router.get("/related-books/:id", relatedBooksController.getRelatedBooks);
 
 //Destroy
 router.delete("/:id", bookController.destroy);
