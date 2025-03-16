@@ -64,8 +64,16 @@ const showSearch = (req, res) => {
 };
 
 //SHOW SINGLE BOOK
+
+// const slugify = (title) => {
+//   return title
+//     .toLowerCase()
+//     .replace(/\s+/g, "-")
+//     .replace(/[^\w-]+/g, "");
+// };
+
 const show = (req, res) => {
-  const { id } = req.params;
+  const { slug } = req.params;
 
   const bookSql = `
   SELECT books.*, genres.category, discounts.id AS discountId, discounts.description AS discountDescription,
@@ -73,11 +81,10 @@ const show = (req, res) => {
     FROM books
     LEFT JOIN discounts ON books.id = discounts.book_id
     JOIN genres ON books.genre_id = genres.id
-    WHERE 
-    books.id = ? `;
+    WHERE LOWER(REPLACE(REPLACE(REPLACE(books.title, ' ', '-'), '’', ''), "'", '')) = ?`;
 
   //lanciare la query
-  connection.execute(bookSql, [id], (err, result) => {
+  connection.execute(bookSql, [slug], (err, result) => {
     if (err) {
       return res.status(500).json({
         error: "Query Error",
