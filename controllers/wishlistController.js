@@ -25,8 +25,10 @@ function getUserWishlist(req, res) {
 
   // Query per ottenere i libri nella wishlist di un utente
   const sql = `
-    SELECT books.id, books.title, books.price, books.image
+    SELECT books.*, discounts.id AS discountId, discounts.description AS discountDescription,
+               discounts.value, discounts.start_date, discounts.end_date, discount_type
     FROM books
+    LEFT JOIN discounts ON books.id = discounts.book_id
     INNER JOIN book_user ON books.id = book_user.book_id
     WHERE book_user.user_id = ?
   `;
