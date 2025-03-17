@@ -9,7 +9,8 @@ const getRelatedBooks = (req, res) => {
     JOIN books main_book ON main_book.id = ?
     WHERE 
     (b.genre_id = main_book.genre_id OR b.author = main_book.author)
-    AND b.id != ?;
+    AND b.id != ?
+    LIMIT 6;
   `;
 
   connection.execute(sql, [id, id], (err, results) => {
@@ -33,5 +34,3 @@ const getRelatedBooks = (req, res) => {
 };
 
 module.exports = { getRelatedBooks };
-
-
