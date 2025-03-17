@@ -30,7 +30,6 @@ app.use("/cart", cartRouter);
 app.use("/sales", salesRouter);
 app.use("/users", userRouter);
 
-
 app.use(errorHandler);
 
 app.listen(PORT, () => {

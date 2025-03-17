@@ -9,7 +9,7 @@ const index = (req, res) => {
                discounts.value, discounts.start_date, discounts.end_date, discount_type
         FROM books
         LEFT JOIN discounts ON books.id = discounts.book_id
-        ORDER BY year_edition DESC
+        ORDER BY year_of_release DESC
         LIMIT 10`;
 
   //lanciare la query
@@ -64,13 +64,6 @@ const showSearch = (req, res) => {
 };
 
 //SHOW SINGLE BOOK
-
-// const slugify = (title) => {
-//   return title
-//     .toLowerCase()
-//     .replace(/\s+/g, "-")
-//     .replace(/[^\w-]+/g, "");
-// };
 
 const show = (req, res) => {
   const { slug } = req.params;
