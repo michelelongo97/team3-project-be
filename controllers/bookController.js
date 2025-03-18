@@ -100,7 +100,38 @@ const show = (req, res) => {
   });
 };
 
+//BestSellers
+
+const getBestSellers = (req, res) => {
+  const sql = `
+    SELECT 
+        b.*, 
+        COALESCE(SUM(sd.quantity), 0) AS sold_count
+    FROM books b
+    LEFT JOIN sale_details sd ON b.id = sd.book_id
+    GROUP BY b.id
+    ORDER BY sold_count DESC
+    LIMIT 10;
+  `;
+
+  connection.execute(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        error: "Query Error",
+        message: "Database query failed",
+      });
+    }
+
+    const books = results.map((book) => {
+      book.image = `${process.env.BE_URL}/book_cover/${book.image}`;
+      return book;
+    });
+
+    res.json(books);
+  });
+};
+
 //DESTROY
 const destroy = (req, res) => {};
 
-module.exports = { index, showSearch, show, destroy };
+module.exports = { index, showSearch, show, getBestSellers, destroy };
