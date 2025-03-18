@@ -17,6 +17,9 @@ router.get("/slug/:slug", bookController.show);
 //Related books
 router.get("/related-books/:id", relatedBooksController.getRelatedBooks);
 
+//Bestsellers
+router.get("/best-sellers", bookController.getBestSellers);
+
 //Destroy
 router.delete("/:id", bookController.destroy);
 
