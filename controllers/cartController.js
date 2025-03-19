@@ -239,6 +239,8 @@ const getCart = (req, res) => {
           sale_details.price, 
           books.title AS book_title, 
           books.image , 
+          books.author,
+          books.available_quantity,
           discounts.description,
           discounts.discount_type,
           discounts.value
