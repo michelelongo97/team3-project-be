@@ -104,14 +104,20 @@ const show = (req, res) => {
 
 const getBestSellers = (req, res) => {
   const sql = `
-    SELECT 
-        b.*, 
-        COALESCE(SUM(sd.quantity), 0) AS sold_count
-    FROM books b
-    LEFT JOIN sale_details sd ON b.id = sd.book_id
-    GROUP BY b.id
+  SELECT 
+      books.*, 
+      discounts.id AS discountId, 
+      discounts.value, 
+      discounts.discount_type, 
+      discounts.start_date, 
+      discounts.end_date, 
+      SUM(sale_details.quantity) AS sold_count
+    FROM books
+    JOIN sale_details ON books.id = sale_details.book_id
+    LEFT JOIN discounts ON books.id = discounts.book_id
+    GROUP BY books.id, discountId, discounts.value, discounts.discount_type, discounts.start_date, discounts.end_date
     ORDER BY sold_count DESC
-    LIMIT 10;
+    LIMIT 10
   `;
 
   connection.execute(sql, (err, results) => {
