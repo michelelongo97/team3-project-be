@@ -1,4 +1,6 @@
 const connection = require('../data/db');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 const createSale = (req, res) => {
   const {
       first_name,
@@ -17,6 +19,16 @@ const createSale = (req, res) => {
           message: "Tutti i campi (nome, cognome, email, telefono, indirizzi, prezzo totale) sono obbligatori per completare il checkout.",
       });
   }
+
+
+  // Configurazione del trasporto email
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // Servizio email 
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+   });
 
   // Inserisci l'utente nella tabella `users`
   const insertUserSql = `
@@ -108,6 +120,39 @@ const createSale = (req, res) => {
                                   );
                               }
 
+
+                              // INVIA EMAIL AL CLIENTE
+                              const clientMailOptions = {
+                                from: process.env.EMAIL_USER,
+                                to: email, // Email del cliente
+                                subject: 'Conferma Ordine',
+                                text: `Grazie per il tuo ordine! Il numero del tuo ordine è ${order_number}.`,
+                            };
+
+                            transporter.sendMail(clientMailOptions, (err, info) => {
+                                if (err) {
+                                    console.error('Errore durante l\'invio dell\'email al cliente:', err.message);
+                                } else {
+                                    console.log('Email inviata al cliente:', info.response);
+                                }
+                            });
+
+                            // INVIA EMAIL AL VENDITORE
+                            const vendorMailOptions = {
+                                from: process.env.EMAIL_USER,
+                                to: '', // Email del venditore
+                                subject: 'Nuovo Ordine Ricevuto',
+                                text: `Hai ricevuto un nuovo ordine con il numero ${order_number}.`,
+                            };
+
+                            transporter.sendMail(vendorMailOptions, (err, info) => {
+                                if (err) {
+                                    console.error('Errore durante l\'invio dell\'email al venditore:', err.message);
+                                } else {
+                                    console.log('Email inviata al venditore:', info.response);
+                                }
+                            });
+
                               res.status(200).json({
                                   message: "Checkout completato con successo.",
                                   order_number,
@@ -121,6 +166,7 @@ const createSale = (req, res) => {
           });
       });
   }
+  
 };
 
   module.exports = createSale;
