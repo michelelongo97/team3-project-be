@@ -133,7 +133,28 @@ const createSale = (req, res) => {
                   from: process.env.EMAIL_USER,
                   to: email, // Email del cliente
                   subject: "Conferma Ordine",
-                  text: `Grazie per il tuo ordine! Il numero del tuo ordine è ${order_number}.`,
+                  text: ` Ciao ${first_name} ${last_name},
+
+    Grazie per il tuo ordine! Siamo lieti di confermare che il tuo acquisto è stato completato con successo.
+    Dettagli dell'ordine:
+    - Numero ordine: ${order_number}
+    - Prodotti acquistati:
+        ${itemsResult.map(
+          (item) =>
+            `- ${item.book_title} (Quantità: ${item.quantity}, Prezzo: ${item.price}€)`
+        ).join("\n")}
+    - Totale: €${total_price.toFixed(2)}
+    - Costo di spedizione: €${shipment_cost.toFixed(2)}
+    - Indirizzo di spedizione: ${shipment_address}
+
+    Data stimata di consegna in 3 giorni lavorativi.
+
+    Per qualsiasi domanda o necessità, puoi contattarci all'indirizzo email ${process.env.EMAIL_USER} .
+
+    Grazie per aver scelto [Book Heaven]! Speriamo di rivederti presto.
+
+    Cordiali saluti,
+    [Book Heaven]`,
                 };
 
                 transporter.sendMail(clientMailOptions, (err, info) => {
@@ -152,7 +173,31 @@ const createSale = (req, res) => {
                   from: process.env.EMAIL_USER,
                   to: process.env.EMAIL_USER, // Email del venditore
                   subject: "Nuovo Ordine Ricevuto",
-                  text: `Hai ricevuto un nuovo ordine con il numero ${order_number}.`,
+                  text: `Ciao [Book Heaven],
+
+    Hai ricevuto un nuovo ordine! Ecco i dettagli:
+
+    Dettagli dell'ordine:
+    - Numero ordine: ${order_number}
+    - Prodotti acquistati:
+        ${itemsResult.map(
+          (item) =>
+            `- ${item.book_title} (Quantità: ${item.quantity}, Prezzo: €${item.price})`
+        ).join("\n")}
+    - Totale: €${total_price.toFixed(2)}
+    - Costo di spedizione: €${shipment_cost.toFixed(2)}
+
+    Dettagli cliente:
+    - Nome: ${first_name} ${last_name}
+    - Email: ${email}
+    - Telefono: ${phone}
+    - Indirizzo di spedizione: ${shipment_address}
+    - Indirizzo di fatturazione: ${billing_address}
+
+    Ti invitiamo a verificare lo stato dell'inventario e preparare l'ordine per la spedizione.
+
+    Cordiali saluti,
+    [Book Heaven]`,
                 };
 
                 transporter.sendMail(vendorMailOptions, (err, info) => {
